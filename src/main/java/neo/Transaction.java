@@ -125,7 +125,13 @@ public class Transaction {
         this.witnesses.add(newwit);
         return true;
     }
-
+    public boolean addAttribute(Attribute attr) {
+        if (this.attributes == null) {
+            this.attributes = new ArrayList<>();
+        }
+        this.attributes.add(attr);
+        return true;
+    }
     public boolean serializeUnsigned(ByteArrayOutputStream baos) {
         try {
             baos.write(this.txtype);
@@ -137,7 +143,8 @@ public class Transaction {
             } else {
                 throw new Exception("runtime error: tx type error");
             }
-
+            System.out.println("befaore attribute: ");
+            System.out.println(Utils.bytesToHexString(baos.toByteArray()));
             int length = 0;
             if(this.attributes != null) {
                 length = this.attributes.size();
@@ -150,7 +157,7 @@ public class Transaction {
             for(int i = 0; i < length; i++) {
                 byte[] attriData = this.attributes.get(i).getData();
                 byte usage = this.attributes.get(i).getUsage();
-
+                baos.write(usage);
                 if (usage == AttributeType.ContractHash || usage == AttributeType.Vote || (usage >= AttributeType.Hash1 && usage <= AttributeType.Hash15)) {
                     baos.write(attriData, 0, 32);
                 } else if (usage == AttributeType.ECDH02 || usage == AttributeType.ECDH03) {
@@ -171,12 +178,13 @@ public class Transaction {
                     throw new Exception("runtime error: attribute type error");
                 }
             }
-
+            System.out.println(Utils.bytesToHexString(baos.toByteArray()));
             int countInputs = this.inputs.size();
+            System.out.println("inputs count:" + countInputs);
             VarInt varInputs = new VarInt(countInputs);
             byte[] lenInputs = varInputs.encode();
             baos.write(lenInputs);
-
+            System.out.println(Utils.bytesToHexString(baos.toByteArray()));
             for(int i = 0; i < countInputs; i++) {
                 TransactionInput input = this.inputs.get(i);
                 baos.write(input.getHash());
@@ -184,8 +192,9 @@ public class Transaction {
                 Utils.uint16ToByteArrayLE(input.getIndex(), indexBytes, 0);
                 baos.write(indexBytes);
             }
-
+            System.out.println(Utils.bytesToHexString(baos.toByteArray()));
             int countOutputs = this.outputs.size();
+            System.out.println("outputs count:" + countOutputs);
             VarInt varOutputs = new VarInt(countOutputs);
             byte[] lenOutputs = varOutputs.encode();
             baos.write(lenOutputs);
@@ -196,7 +205,7 @@ public class Transaction {
                 Utils.int64ToByteStreamLE(output.getValue().getValue(), baos);
                 baos.write(output.getToAddress());
             }
-
+            System.out.println(Utils.bytesToHexString(baos.toByteArray()));
         }catch (Exception e) {
             e.printStackTrace();
             return false;

@@ -2,17 +2,8 @@ import api.CreateSignParams;
 import api.TxCreator;
 import api.TxUtils;
 import api.Utxo;
-import core.DumpedPrivateKey;
-import core.ECKey;
-import core.NetworkParameters;
-import neo.Helper;
-import sun.security.ec.ECPrivateKeyImpl;
-import sun.security.util.KeyUtil;
 
 import java.math.BigInteger;
-import java.security.*;
-import java.security.interfaces.ECPrivateKey;
-import java.security.spec.ECGenParameterSpec;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +38,7 @@ public class Main {
         */
 
         //NeoTransfer();
-        Nep5Transfer();
+        Nep5Transfer1();
     }
 
     public static String NeoTransfer() {
@@ -95,6 +86,21 @@ public class Main {
         createSignParams.setUtxos(utxoList);
 
         String raw = TxCreator.createInvocationTransaction(createSignParams);
+        return raw;
+    }
+    public static String Nep5Transfer1() {
+        CreateSignParams createSignParams = new CreateSignParams();
+        createSignParams.setVersion((byte)1);
+        createSignParams.setPriKey("KxHLAM6z6QUfEHcxQRsCyuKLYfiU7m4EwkLTLUAPcNAvR58YBPxm");
+        createSignParams.setFrom("AHZFHWfe3URjXhAzzJGhnrtGHCUPxJwk8V");
+
+        BigInteger value = new BigInteger("100000000");
+        byte[] data = TxUtils.MakeNep5Transfer2("093430c81a5be01047263095f564d6b56b67ca7c", "AHZFHWfe3URjXhAzzJGhnrtGHCUPxJwk8V", "AYNJrhY8ip1NTeECo2SAsmMdFmDqiJFsMv", value);
+        createSignParams.setData(data);
+
+        String raw = TxCreator.createInvocationTransactionWithoutFee(createSignParams);
+        System.out.println("tx: " + raw);
+
         return raw;
     }
 }
