@@ -211,24 +211,32 @@ public class TxCreator {
         return  raw;
     }
     public static String createInvocationTransactionWithoutFee(CreateSignParams params) {
+        String fromAddress = params.getFrom();
         Transaction tx = new Transaction();
         tx.setTxtype(TransactionType.InvocationTransaction);
         tx.setVersion(params.getVersion());
 
-        List<TransactionInput> inputs = null;
-        inputs = new ArrayList<TransactionInput>();
-        tx.setInputs(inputs);
+        Attribute attr = new Attribute();
+        attr.setUsage(AttributeType.Script);
+        try{
+            Address address = new Address(fromAddress);
+            attr.setData(address.getHash160());
+        } catch (AddressFormatException e) {
+            e.printStackTrace();
+        }
+        tx.addAttribute(attr);
 
-        String toAddress = params.getTo();
+        List<TransactionInput> inputs = new ArrayList<>();
+        tx.setInputs(inputs);
 
         List<TransactionOutput> outputs = new ArrayList<>();
         tx.setOutputs(outputs);
 
-        String fromAddress = params.getFrom();
         InvokeTransData invokeTransData = new InvokeTransData();
         invokeTransData.setScript(params.getData());
         Fixed8 gas = new Fixed8();
-        gas.setValue(100000000);
+        gas.setValue(0);
+
         invokeTransData.setGas(gas);
         tx.setExtdata(invokeTransData);
 
@@ -258,4 +266,6 @@ public class TxCreator {
         String raw = Utils.bytesToHexString(rawData);
         return  raw;
     }
+
 }
+

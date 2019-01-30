@@ -125,7 +125,13 @@ public class Transaction {
         this.witnesses.add(newwit);
         return true;
     }
-
+    public boolean addAttribute(Attribute attr) {
+        if (this.attributes == null) {
+            this.attributes = new ArrayList<>();
+        }
+        this.attributes.add(attr);
+        return true;
+    }
     public boolean serializeUnsigned(ByteArrayOutputStream baos) {
         try {
             baos.write(this.txtype);
@@ -150,7 +156,7 @@ public class Transaction {
             for(int i = 0; i < length; i++) {
                 byte[] attriData = this.attributes.get(i).getData();
                 byte usage = this.attributes.get(i).getUsage();
-
+                baos.write(usage);
                 if (usage == AttributeType.ContractHash || usage == AttributeType.Vote || (usage >= AttributeType.Hash1 && usage <= AttributeType.Hash15)) {
                     baos.write(attriData, 0, 32);
                 } else if (usage == AttributeType.ECDH02 || usage == AttributeType.ECDH03) {
@@ -176,7 +182,6 @@ public class Transaction {
             VarInt varInputs = new VarInt(countInputs);
             byte[] lenInputs = varInputs.encode();
             baos.write(lenInputs);
-
             for(int i = 0; i < countInputs; i++) {
                 TransactionInput input = this.inputs.get(i);
                 baos.write(input.getHash());
@@ -184,7 +189,6 @@ public class Transaction {
                 Utils.uint16ToByteArrayLE(input.getIndex(), indexBytes, 0);
                 baos.write(indexBytes);
             }
-
             int countOutputs = this.outputs.size();
             VarInt varOutputs = new VarInt(countOutputs);
             byte[] lenOutputs = varOutputs.encode();
@@ -196,7 +200,6 @@ public class Transaction {
                 Utils.int64ToByteStreamLE(output.getValue().getValue(), baos);
                 baos.write(output.getToAddress());
             }
-
         }catch (Exception e) {
             e.printStackTrace();
             return false;
