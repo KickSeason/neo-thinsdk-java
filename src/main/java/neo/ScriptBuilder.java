@@ -74,7 +74,7 @@ public class ScriptBuilder {
             this.Emit(opcode, null);
             return this;
         }
-        this.EmitPushBytes(number.toByteArray());
+        this.EmitPushBytes(Utils.reverseBytes(number.toByteArray()));
         return this;
     }
 
