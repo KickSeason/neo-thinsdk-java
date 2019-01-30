@@ -47,7 +47,7 @@ public class Main {
         */
 
         //NeoTransfer();
-        Nep5Transfer();
+        PureNep5Transfer();
     }
 
     public static String NeoTransfer() {
@@ -95,6 +95,19 @@ public class Main {
         createSignParams.setUtxos(utxoList);
 
         String raw = TxCreator.createInvocationTransaction(createSignParams);
+        return raw;
+    }
+
+    public static String PureNep5Transfer() {
+        CreateSignParams createSignParams = new CreateSignParams();
+        createSignParams.setVersion((byte)1);
+        createSignParams.setPriKey("L4RmQvd6PVzBTgYLpYagknNjhZxsHBbJq4ky7Zd3vB7AguSM7gF1");
+        createSignParams.setFrom("ARbjp1wPh5XJchZpSjqHzGVQnnpTxNR1x7");
+
+        BigInteger value = new BigInteger("100000000");
+        byte[] data = TxUtils.makeNep5Transfer("c88acaae8a0362cdbdedddf0083c452a3a8bb7b8", "ARbjp1wPh5XJchZpSjqHzGVQnnpTxNR1x7", "APxpKoFCfBk8RjkRdKwyUnsBntDRXLYAZc", value);
+        createSignParams.setData(data);
+        String raw = TxCreator.createInvocationTransactionWithoutFee(createSignParams);
         return raw;
     }
 }

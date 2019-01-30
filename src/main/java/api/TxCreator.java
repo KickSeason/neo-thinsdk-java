@@ -210,4 +210,52 @@ public class TxCreator {
         String raw = Utils.bytesToHexString(rawData);
         return  raw;
     }
+    public static String createInvocationTransactionWithoutFee(CreateSignParams params) {
+        Transaction tx = new Transaction();
+        tx.setTxtype(TransactionType.InvocationTransaction);
+        tx.setVersion(params.getVersion());
+
+        List<TransactionInput> inputs = null;
+        inputs = new ArrayList<TransactionInput>();
+        tx.setInputs(inputs);
+
+        String toAddress = params.getTo();
+
+        List<TransactionOutput> outputs = new ArrayList<>();
+        tx.setOutputs(outputs);
+
+        String fromAddress = params.getFrom();
+        InvokeTransData invokeTransData = new InvokeTransData();
+        invokeTransData.setScript(params.getData());
+        Fixed8 gas = new Fixed8();
+        gas.setValue(100000000);
+        invokeTransData.setGas(gas);
+        tx.setExtdata(invokeTransData);
+
+        byte[] unsignedData = tx.getMessage();
+        String privKey = params.getPriKey();
+        DumpedPrivateKey dumpedPrivateKey = null;
+
+        try {
+            dumpedPrivateKey = new DumpedPrivateKey(new NetworkParameters(), privKey, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(dumpedPrivateKey == null) {
+            return "";
+        }
+
+        ECKey ecKey = dumpedPrivateKey.getKey();
+
+        Sha256Hash sha256Hash = Sha256Hash.create(unsignedData);
+
+        byte[] signature = Helper.sign(sha256Hash, ecKey);
+        byte[] pub = ecKey.getPubKey();
+        tx.addWitness(signature, pub, fromAddress);
+
+        byte[] rawData = tx.getRawData();
+        String raw = Utils.bytesToHexString(rawData);
+        return  raw;
+    }
 }
