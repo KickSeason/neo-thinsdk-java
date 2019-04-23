@@ -2,7 +2,10 @@ package api;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.Random;
+import java.util.Date;
 import core.Utils;
+import jdk.internal.org.objectweb.asm.Opcodes;
 import neo.Helper;
 import neo.OpCode;
 import neo.ScriptBuilder;
@@ -15,6 +18,10 @@ public class TxUtils {
 
     public static byte[] MakeNep5Transfer(String scriptAddress, String from, String to, BigInteger value) {
         ScriptBuilder scriptBuilder = new ScriptBuilder();
+        Random r = new Random(System.currentTimeMillis());
+        BigInteger n = BigInteger.valueOf(r.nextLong());
+        scriptBuilder.EmitPushNumber(n);
+        scriptBuilder.Emit(OpCode.DROP, null);
         scriptBuilder.EmitPushBytes(Utils.reverseBytes(value.toByteArray()));
         scriptBuilder.EmitPushBytes(Helper.getPublicKeyHashFromAddress(to));
         scriptBuilder.EmitPushBytes(Helper.getPublicKeyHashFromAddress(from));
