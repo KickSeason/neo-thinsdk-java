@@ -10,6 +10,9 @@ import neo.ScriptBuilder;
 import java.math.BigInteger;
 
 public class TxUtils {
+    public static final String NeoGovernToken  = "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
+    public static final String NeoUtilityToken  = "602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
+
     public static byte[] MakeNep5Transfer(String scriptAddress, String from, String to, BigInteger value) {
         ScriptBuilder scriptBuilder = new ScriptBuilder();
         scriptBuilder.EmitPushBytes(Utils.reverseBytes(value.toByteArray()));

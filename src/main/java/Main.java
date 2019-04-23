@@ -38,7 +38,7 @@ public class Main {
         */
 
         //NeoTransfer();
-        Nep5Transfer();
+        Nep5TransferWithoutFee();
     }
 
     public static String NeoTransfer() {
@@ -50,32 +50,48 @@ public class Main {
         createSignParams.setAssetId("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b");
         createSignParams.setValue(100000000);
 
-        List<Utxo> utxoList = new ArrayList<>();
-        Utxo utxo = new Utxo();
-        utxo.setHash("b80f65fc5c0cc9a24ae2d613770202aae95dfa598f6541f75987b747eb5ca830");
-        utxo.setValue(10000000000L);
-        utxo.setN((short) 0);
-        utxoList.add(utxo);
-
-        createSignParams.setUtxos(utxoList);
+        Utxo utxo = Utxo.NewUtxo("b80f65fc5c0cc9a24ae2d613770202aae95dfa598f6541f75987b747eb5ca830",
+                "c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b",
+                10000000000L, (short) 0);
+        createSignParams.AddUtxo(utxo);
 
         String raw = TxCreator.createContractTransaction(createSignParams);
         return raw;
     }
 
-    public static String Nep5Transfer() {
+    public static String Nep5TransferWithFee() {
         CreateSignParams createSignParams = new CreateSignParams();
         createSignParams.setVersion((byte)1);
         createSignParams.setPriKey("KxHLAM6z6QUfEHcxQRsCyuKLYfiU7m4EwkLTLUAPcNAvR58YBPxm");
+        createSignParams.setAssetId("093430c81a5be01047263095f564d6b56b67ca7c");
         createSignParams.setFrom("AHZFHWfe3URjXhAzzJGhnrtGHCUPxJwk8V");
+        createSignParams.setTo("AYNJrhY8ip1NTeECo2SAsmMdFmDqiJFsMv");
+        createSignParams.setValue(100000000L);
+        createSignParams.setFee(1L);
 
-        BigInteger value = new BigInteger("200000000");
-        byte[] data = TxUtils.MakeNep5Transfer("093430c81a5be01047263095f564d6b56b67ca7c", "AHZFHWfe3URjXhAzzJGhnrtGHCUPxJwk8V", "AYNJrhY8ip1NTeECo2SAsmMdFmDqiJFsMv", value);
-        createSignParams.setData(data);
+        Utxo utxo = Utxo.NewUtxo("566ebf5da9f0bcfa27811266ab62b39fe44e900c1bf166aa485e6df8378e5a80",
+                TxUtils.NeoUtilityToken,
+                2000L, (short) 0);
+        createSignParams.AddUtxo(utxo);
 
-        String raw = TxCreator.createInvocationTransactionWithoutFee(createSignParams);
+        String raw = TxCreator.createInvocationTransaction(createSignParams);
         System.out.println("Invocation Tx: " + raw);
 
+        return raw;
+    }
+
+    public static String Nep5TransferWithoutFee() {
+        CreateSignParams createSignParams = new CreateSignParams();
+        createSignParams.setVersion((byte)1);
+        createSignParams.setPriKey("private-key");
+        createSignParams.setAssetId("ecf33479dadde66b721a0791ac03e3d06bb137ab");
+        createSignParams.setFrom("AJF1nLdSHbAtYZArTNRpC3qhRnJM1bCxev");
+        createSignParams.setTo("ARUB61ysG7LLjuChqfjTBUNg6UB6gj4Mat");
+        createSignParams.setValue(1L);
+        createSignParams.setFee(0L);
+
+        String raw = TxCreator.createInvocationTransaction(createSignParams);
+        System.out.println("Invocation Tx: " + raw);
         return raw;
     }
 }
